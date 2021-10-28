@@ -35,7 +35,7 @@ group by product_category_name
 order by num_products DESC;
 
 -----------------------
-------- LEFT JOIN
+------- JOINS
 -----------------------
 
 select
@@ -51,6 +51,70 @@ from orders o inner join order_items oi 	   on      							     (oi.order_id = o
 			  inner join sellers s             on   							   (s.seller_id = oi.seller_id)
 			  inner join geolocation g         on  (g.geolocation_zip_code_prefix = c.customer_zip_code_prefix)
 limit 10;
+
+-----------------------
+------- SUBQUERIES
+-----------------------
+
+select * from order_items oi limit 10;
+
+
+select
+	o.customer_id,
+	c.customer_state,
+	count(oi.product_id) as num_product
+from orders o inner join order_items oi ON (oi.order_id = o.order_id)
+			  inner join customer c     ON (c.customer_id = o.customer_id)
+group by o.customer_id, c.customer_state
+order by num_product DESC;
+
+
+WITH product_count AS (
+select 
+	order_id,
+	count(product_id) as num_product
+from order_items oi
+group by order_id
+order by num_product DESC
+), order_customer AS (
+select 
+	order_id,
+	customer_id 
+from orders o 
+), customer_state AS (
+SELECT 
+	customer_id,
+	customer_state 
+from customer c
+)
+select
+	cs.customer_id,
+	cs.customer_state,
+	pc.num_product
+from customer_state cs INNER JOIN order_customer oc ON (oc.customer_id = cs.customer_id)
+					   INNER JOIN product_count  pc ON (pc.order_id = oc.order_id)
+order by pc.num_product DESC;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
